@@ -17,7 +17,7 @@ export default function SummaryForm({ setOrderPhase }) {
 
   const popover = (
     <Popover id='termsandconditions-popover'>
-      <Popover.Content>No ice cream will actually be delivered</Popover.Content>
+      <Popover.Body>No ice cream will actually be delivered</Popover.Body>
     </Popover>
   );
 
@@ -25,7 +25,7 @@ export default function SummaryForm({ setOrderPhase }) {
     <span>
       I agree to
       <OverlayTrigger placement='right' overlay={popover}>
-        <span style={{ color: 'blue' }}>Terms and Conditions</span>
+        <span style={{ color: 'blue' }}> Terms and Conditions</span>
       </OverlayTrigger>
     </span>
   );
