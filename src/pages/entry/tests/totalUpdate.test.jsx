@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OrderDetailsProvider } from '../../../contexts/OrderDetails';
 import Options from '../Options';
+import OrderEntry from '../OrderEntry';
 
 test('update scoop subtotal when scoops change', async () => {
   render(<Options optionType='scoops' />, { wrapper: OrderDetailsProvider });
@@ -79,4 +80,57 @@ test('update toppings subtotal when toppings change', async () => {
   //remove hot budge and check subtotal
   userEvent.click(scoopHotFudge);
   expect(toppigsSubTotal).toHaveTextContent('1.50');
+});
+
+describe('grand total', () => {
+  test('grand total starts at $0.00', () => {
+    render(<OrderEntry setOrderPhase={jest.fn()} />, {
+      wrapper: OrderDetailsProvider,
+    });
+    const initialTotal = screen.getByText('Grand total:', { exact: false });
+    expect(initialTotal).toHaveTextContent('$0.00');
+  });
+
+  test('grand total updates properly if scoop is added first', async () => {
+    render(<OrderEntry setOrderPhase={jest.fn()} />, {
+      wrapper: OrderDetailsProvider,
+    });
+
+    const vanillaScoop = await screen.findByRole('spinbutton', {
+      name: 'Vanilla',
+    });
+    userEvent.clear(vanillaScoop);
+    userEvent.type(vanillaScoop, '1');
+    const grandTotal = screen.getByText('Grand total:', { exact: false });
+    expect(grandTotal).toHaveTextContent('$2.00');
+  });
+
+  test('grand total updates properly if topping is added first', async () => {
+    render(<OrderEntry setOrderPhase={jest.fn()} />, {
+      wrapper: OrderDetailsProvider,
+    });
+
+    const toppingValue = await screen.findByRole('checkbox', {
+      name: 'M&Ms',
+    });
+    userEvent.clear(toppingValue);
+    userEvent.type(toppingValue, '1');
+    const grandTotal = screen.getByText('Grand total:', { exact: false });
+    expect(grandTotal).toHaveTextContent('$1.50');
+  });
+  test('grand total updates properly if items is removed', async () => {
+    render(<OrderEntry setOrderPhase={jest.fn()} />, {
+      wrapper: OrderDetailsProvider,
+    });
+
+    const toppingValue = await screen.findByRole('checkbox', {
+      name: 'M&Ms',
+    });
+    userEvent.clear(toppingValue);
+    userEvent.type(toppingValue, '1');
+    const grandTotal = screen.getByText('Grand total:', { exact: false });
+    expect(grandTotal).toHaveTextContent('$1.50');
+    userEvent.type(toppingValue, '0');
+    expect(grandTotal).toHaveTextContent('$0.00');
+  });
 });
